@@ -15,9 +15,7 @@ export default function FilterBar({
 }) {
   const { t } = useTranslation();
 
-  const countryOptions = COUNTRIES.filter((c) =>
-    availableCountries.includes(c.name)
-  );
+  const countryOptions = COUNTRIES;
 
   return (
     <div className="bg-white rounded-lg shadow p-4 mb-6">
