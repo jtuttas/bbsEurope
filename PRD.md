@@ -142,3 +142,7 @@ Als Technologiestack soll die Anwendung als Python Flask Web-App mit einer Postg
 
 Die Anwendung sollte die Sprachen Deutsch, Englisch, Französisch und Spanisch unterstützen. Alle statischen Texte, Fehlermeldungen und Benachrichtigungen müssen in diesen Sprachen verfügbar sein. Die Sprache kann über ein Dropdown-Menü im Header ausgewählt werden, und die Auswahl wird in einem Cookie gespeichert, um die Präferenz bei zukünftigen Besuchen beizubehalten. Alle dynamischen Inhalte (z. B. Schulbeschreibungen) werden in der Sprache angezeigt, in der sie eingegeben wurden. Es gibt keine automatische Übersetzung von Inhalten, daher sollten Nutzer ermutigt werden, ihre Einträge in einer der unterstützten Sprachen zu verfassen, um die Zugänglichkeit für andere Nutzer zu erhöhen. Die Mehrsprachigkeit trägt dazu bei, die Anwendung für ein breiteres Publikum in Europa zugänglich zu machen und die internationale Zusammenarbeit zwischen Berufsschulen zu fördern.
 
+## 11 Deployment und Wartung
+
+Die Anwendung soll über eine github Action automatisch einen Docker Container erstellen und auf die github Registry pushen.
+ 
