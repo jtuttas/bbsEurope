@@ -11,11 +11,27 @@ login_manager = LoginManager()
 mail = Mail()
 
 
+def _resolve_static_folder():
+    base = os.path.dirname(os.path.abspath(__file__))
+    # Development: backend/ is sibling of frontend/
+    dev_path = os.path.join(base, '..', 'frontend', 'dist')
+    if os.path.isdir(dev_path):
+        return os.path.abspath(dev_path)
+    # Docker: frontend/dist is inside the same directory as app.py
+    docker_path = os.path.join(base, 'frontend', 'dist')
+    if os.path.isdir(docker_path):
+        return os.path.abspath(docker_path)
+    return os.path.abspath(dev_path)
+
+
 def create_app():
-    app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
+    app = Flask(__name__, static_folder=_resolve_static_folder(), static_url_path='/')
     app.config.from_object(Config)
 
-    CORS(app, supports_credentials=True, origins=['http://localhost:5173'])
+    allowed_origins = ['http://localhost:5173', 'http://localhost:5000']
+    if os.environ.get('RENDER_EXTERNAL_URL'):
+        allowed_origins.append(os.environ['RENDER_EXTERNAL_URL'])
+    CORS(app, supports_credentials=True, origins=allowed_origins)
 
     db.init_app(app)
     login_manager.init_app(app)
