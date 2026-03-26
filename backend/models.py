@@ -86,5 +86,6 @@ class School(db.Model):
             'description': self.description,
             'createdAt': self.created_at.isoformat() if self.created_at else None,
             'createdBy': self.creator.display_name if self.creator else None,
+            'createdByEmail': self.creator.email if self.creator else None,
             'createdByUserId': self.created_by,
         }

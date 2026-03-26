@@ -106,6 +106,31 @@ export default function SchoolModal({ school, onClose, onEdit, onDelete }) {
             </div>
           )}
 
+          {/* Contact person */}
+          {school.createdBy && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="text-xs font-semibold text-secondary uppercase tracking-wide mb-2">
+                {t('contactPerson')}
+              </h4>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-lg">
+                  {school.createdBy.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="font-semibold text-primary text-sm">{school.createdBy}</p>
+                  {school.createdByEmail && (
+                    <a
+                      href={`mailto:${school.createdByEmail}`}
+                      className="text-accent hover:underline text-sm"
+                    >
+                      {school.createdByEmail}
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-8 text-xs text-secondary pt-2 border-t">
             <span>
               {t('createdAt')}:{' '}

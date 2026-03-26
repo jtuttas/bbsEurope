@@ -53,5 +53,6 @@
   "newPassword": "Neues Passwort",
   "resetSuccess": "Passwort erfolgreich zurückgesetzt",
   "backToLogin": "Zurück zur Anmeldung",
-  "language": "Sprache"
+  "language": "Sprache",
+  "contactPerson": "Ansprechpartner der Netzwerkschule"
 }

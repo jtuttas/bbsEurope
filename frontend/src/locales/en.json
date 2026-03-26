@@ -53,5 +53,6 @@
   "newPassword": "New Password",
   "resetSuccess": "Password successfully reset",
   "backToLogin": "Back to Login",
-  "language": "Language"
+  "language": "Language",
+  "contactPerson": "Network School Contact"
 }

@@ -53,5 +53,6 @@
   "newPassword": "Nueva contraseña",
   "resetSuccess": "Contraseña restablecida con éxito",
   "backToLogin": "Volver al inicio de sesión",
-  "language": "Idioma"
+  "language": "Idioma",
+  "contactPerson": "Persona de contacto de la escuela de la red"
 }

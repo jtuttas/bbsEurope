@@ -53,5 +53,6 @@
   "newPassword": "Nouveau mot de passe",
   "resetSuccess": "Mot de passe réinitialisé avec succès",
   "backToLogin": "Retour à la connexion",
-  "language": "Langue"
+  "language": "Langue",
+  "contactPerson": "Personne de contact de l'école du réseau"
 }
