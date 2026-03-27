@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 
-from models import db, User
+from models import db, User, School, school_fields, school_languages
 
 users_bp = Blueprint('users', __name__)
 
@@ -79,6 +79,13 @@ def delete_user(user_id):
         return jsonify({'error': 'Benutzer nicht gefunden'}), 404
     if user.username == 'admin':
         return jsonify({'error': 'Admin kann nicht gelöscht werden'}), 400
+
+    # Cascade: erst alle Schulen (Partnerschulen) dieses Users löschen
+    user_schools = School.query.filter_by(created_by=user_id).all()
+    for school in user_schools:
+        db.session.execute(school_fields.delete().where(school_fields.c.school_id == school.id))
+        db.session.execute(school_languages.delete().where(school_languages.c.school_id == school.id))
+        db.session.delete(school)
 
     db.session.delete(user)
     db.session.commit()

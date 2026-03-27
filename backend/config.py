@@ -9,7 +9,8 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
-        'connect_args': {'sslmode': os.environ.get('POSTGRES_SSL_MODE', 'require')}
+        'connect_args': {'sslmode': os.environ.get('POSTGRES_SSL_MODE', 'require')},
+        'pool_pre_ping': True,
     }
 
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin')
@@ -20,3 +21,5 @@ class Config:
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER')
+
+    FRONTEND_URL = os.environ.get('FRONTEND_URL')

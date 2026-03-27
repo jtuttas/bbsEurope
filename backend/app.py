@@ -76,10 +76,14 @@ def _seed_admin(app):
         admin = User(
             username='admin',
             display_name='Administrator',
+            email=os.environ.get('MAIL_DEFAULT_SENDER'),
             is_admin=True,
         )
         admin.set_password(app.config['ADMIN_PASSWORD'])
         db.session.add(admin)
+        db.session.commit()
+    elif not admin.email:
+        admin.email = os.environ.get('MAIL_DEFAULT_SENDER')
         db.session.commit()
 
 

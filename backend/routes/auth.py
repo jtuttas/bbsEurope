@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 
@@ -51,7 +51,7 @@ def request_reset():
     if user and user.email:
         token = str(uuid.uuid4())
         user.reset_token = token
-        user.reset_token_expiry = datetime.now(timezone.utc) + timedelta(hours=1)
+        user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
         db.session.commit()
 
         try:
@@ -61,11 +61,14 @@ def request_reset():
                 'Passwort zurücksetzen — Network BBS Europe',
                 recipients=[user.email],
             )
-            reset_url = f"{request.host_url}reset-password?token={token}"
+            from flask import current_app
+            frontend_url = current_app.config.get('FRONTEND_URL') or request.host_url
+            reset_url = f"{frontend_url.rstrip('/')}/reset-password?token={token}"
             msg.body = f"Klicken Sie auf den folgenden Link, um Ihr Passwort zurückzusetzen:\n\n{reset_url}\n\nDer Link ist 1 Stunde gültig."
             mail.send(msg)
-        except Exception:
-            pass  # silently fail if mail is not configured
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error('Fehler beim Mail-Versand: %s', e)
 
     # Always return success to prevent email enumeration
     return jsonify({'message': 'Falls die E-Mail-Adresse registriert ist, wurde eine E-Mail gesendet.'})
@@ -84,7 +87,7 @@ def reset_password():
         return jsonify({'error': 'Passwort muss mindestens 6 Zeichen lang sein'}), 400
 
     user = User.query.filter_by(reset_token=token).first()
-    if not user or not user.reset_token_expiry or user.reset_token_expiry < datetime.now(timezone.utc):
+    if not user or not user.reset_token_expiry or user.reset_token_expiry < datetime.utcnow():
         return jsonify({'error': 'Ungültiger oder abgelaufener Token'}), 400
 
     user.set_password(new_password)

@@ -10,12 +10,17 @@ import SchoolForm from './components/SchoolForm';
 import LoginForm from './components/LoginForm';
 import AdminPanel from './components/AdminPanel';
 
-function LoginPage({ onSuccess }) {
+function LoginPage({ onSuccess, initialToken }) {
   const { t } = useTranslation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState(initialToken ? 'reset' : 'login');
+  const [email, setEmail] = useState('');
+  const [resetToken] = useState(initialToken || '');
+  const [newPassword, setNewPassword] = useState('');
+  const [message, setMessage] = useState('');
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -30,27 +35,119 @@ function LoginPage({ onSuccess }) {
     }
   }
 
+  async function handleResetRequest(e) {
+    e.preventDefault();
+    setError('');
+    setMessage('');
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/request-reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      setMessage(data.message || t('resetEmailSent'));
+    } catch {
+      setError(t('loginError'));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleResetPassword(e) {
+    e.preventDefault();
+    setError('');
+    setMessage('');
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: resetToken, password: newPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error);
+      } else {
+        setMessage(t('resetSuccess'));
+        window.history.replaceState({}, '', '/');
+        setTimeout(() => setMode('login'), 2000);
+      }
+    } catch {
+      setError(t('loginError'));
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="p-6">
+      {message && (
+        <div className="bg-green-50 text-green-700 text-sm rounded-lg p-3 mb-4">{message}</div>
+      )}
       {error && (
         <div className="bg-red-50 text-red-600 text-sm rounded-lg p-3 mb-4">{error}</div>
       )}
-      <form onSubmit={handleLogin} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-primary mb-1">{t('username')}</label>
-          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} autoFocus required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:border-transparent" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-primary mb-1">{t('password')}</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:border-transparent" />
-        </div>
-        <button type="submit" disabled={loading}
-          className="w-full bg-accent text-primary font-semibold py-2 rounded-lg hover:bg-yellow-400 transition disabled:opacity-50">
-          {loading ? '…' : t('loginButton')}
-        </button>
-      </form>
+
+      {mode === 'login' && (
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-primary mb-1">{t('username')}</label>
+            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} autoFocus required
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:border-transparent" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-primary mb-1">{t('password')}</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:border-transparent" />
+          </div>
+          <button type="submit" disabled={loading}
+            className="w-full bg-accent text-primary font-semibold py-2 rounded-lg hover:bg-yellow-400 transition disabled:opacity-50">
+            {loading ? '…' : t('loginButton')}
+          </button>
+          <button type="button" onClick={() => { setMode('reset-request'); setError(''); setMessage(''); }}
+            className="w-full text-sm text-secondary hover:text-primary transition">
+            {t('forgotPassword')}
+          </button>
+        </form>
+      )}
+
+      {mode === 'reset-request' && (
+        <form onSubmit={handleResetRequest} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-primary mb-1">{t('email')}</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoFocus required
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:border-transparent" />
+          </div>
+          <button type="submit" disabled={loading}
+            className="w-full bg-accent text-primary font-semibold py-2 rounded-lg hover:bg-yellow-400 transition disabled:opacity-50">
+            {loading ? '…' : t('resetPassword')}
+          </button>
+          <button type="button" onClick={() => { setMode('login'); setError(''); setMessage(''); }}
+            className="w-full text-sm text-secondary hover:text-primary transition">
+            {t('backToLogin')}
+          </button>
+        </form>
+      )}
+
+      {mode === 'reset' && (
+        <form onSubmit={handleResetPassword} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-primary mb-1">{t('newPassword')}</label>
+            <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} autoFocus required minLength={6}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:border-transparent" />
+          </div>
+          <button type="submit" disabled={loading}
+            className="w-full bg-accent text-primary font-semibold py-2 rounded-lg hover:bg-yellow-400 transition disabled:opacity-50">
+            {loading ? '…' : t('save')}
+          </button>
+          <button type="button" onClick={() => { setMode('login'); setError(''); setMessage(''); window.history.replaceState({}, '', '/'); }}
+            className="w-full text-sm text-secondary hover:text-primary transition">
+            {t('backToLogin')}
+          </button>
+        </form>
+      )}
     </div>
   );
 }
@@ -161,6 +258,10 @@ export default function App() {
   }
 
   if (!user && !loading) {
+    const params = new URLSearchParams(window.location.search);
+    const resetToken = params.get('token') || '';
+    const isReset = !!resetToken || window.location.pathname === '/reset-password';
+
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
         <div className="absolute top-4 right-4">
@@ -180,13 +281,15 @@ export default function App() {
         </div>
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-primary mb-2">🇪🇺 Network BBS Europe</h1>
-          <p className="text-secondary">{t('loginRequired')}</p>
+          <p className="text-secondary">{isReset ? t('resetPassword') : t('loginRequired')}</p>
         </div>
         <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full">
           <div className="p-6 border-b">
-            <h2 className="text-xl font-bold text-primary text-center">{t('login')}</h2>
+            <h2 className="text-xl font-bold text-primary text-center">
+              {isReset ? t('resetPassword') : t('login')}
+            </h2>
           </div>
-          <LoginPage onSuccess={login} />
+          <LoginPage onSuccess={login} initialToken={resetToken} />
         </div>
       </div>
     );
