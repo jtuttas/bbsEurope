@@ -1,7 +1,6 @@
 # .dockerignore
 node_modules
 frontend/node_modules
-frontend/dist
 .git
 .env
 __pycache__
