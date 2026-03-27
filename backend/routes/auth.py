@@ -66,7 +66,11 @@ def request_reset():
             from app import mail
             from flask import current_app
 
-            frontend_url = current_app.config.get('FRONTEND_URL') or request.host_url
+            frontend_url = (
+                current_app.config.get('FRONTEND_URL')
+                or request.headers.get('Origin')
+                or request.host_url
+            )
             reset_url = f"{frontend_url.rstrip('/')}/reset-password?token={token}"
 
             msg = Message(
