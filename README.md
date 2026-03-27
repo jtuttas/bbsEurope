@@ -55,6 +55,9 @@ MAIL_USE_TLS=true
 MAIL_USERNAME=noreply@example.com
 MAIL_PASSWORD=<mail-passwort>
 MAIL_DEFAULT_SENDER=noreply@example.com
+
+# Frontend URL (for password reset links in dev mode)
+FRONTEND_URL=http://localhost:5173
 ```
 
 ### 3. Backend
@@ -156,7 +159,6 @@ Die Oberfläche ist in vier Sprachen verfügbar: **Deutsch**, **Englisch**, **Fr
 |---|---|
 | **Admin** | Schulen anlegen/bearbeiten/löschen, Nutzer verwalten |
 | **Netzwerkschule** | Eigene Schulen anlegen/bearbeiten/löschen |
-| **Gast** (nicht eingeloggt) | Schulen ansehen und filtern |
 
 Der Admin-Account (`admin`) wird beim ersten Start automatisch mit dem in `.env` hinterlegten Passwort erstellt.
 
