@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../context/ToastContext';
 
-export default function AdminPanel({ onClose }) {
+export default function AdminPanel({ onClose, onSchoolsChanged }) {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const [users, setUsers] = useState([]);
@@ -74,6 +74,7 @@ export default function AdminPanel({ onClose }) {
     if (res.ok) {
       showToast(t('userDeleted'));
       loadUsers();
+      if (onSchoolsChanged) onSchoolsChanged();
     }
   }
 

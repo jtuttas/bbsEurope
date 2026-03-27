@@ -22,5 +22,6 @@ class Config:
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER')
     MAIL_DEBUG = os.environ.get('FLASK_ENV') == 'development'
+    MAIL_TIMEOUT = int(os.environ.get('MAIL_TIMEOUT', 10))
 
     FRONTEND_URL = os.environ.get('FRONTEND_URL')

@@ -227,7 +227,8 @@ export default function App() {
     if (res.ok) {
       showToast(t('schoolDeleted'));
       setSelectedSchool(null);
-      loadSchools();
+      // Sofort aus dem State entfernen (optimistisch)
+      setSchools((prev) => prev.filter((s) => s.id !== id));
     }
   }
 
@@ -366,7 +367,7 @@ export default function App() {
         />
       )}
 
-      {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} />}
+      {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} onSchoolsChanged={loadSchools} />}
     </div>
   );
 }

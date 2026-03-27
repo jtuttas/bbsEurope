@@ -1,5 +1,6 @@
 import logging
 import uuid
+import threading
 from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
@@ -61,33 +62,41 @@ def request_reset():
         user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
         db.session.commit()
 
-        try:
-            from flask_mail import Message
-            from app import mail
-            from flask import current_app
+        from flask import current_app
+        frontend_url = (
+            current_app.config.get('FRONTEND_URL')
+            or request.headers.get('Origin')
+            or request.host_url
+        )
+        reset_url = f"{frontend_url.rstrip('/')}/reset-password?token={token}"
 
-            frontend_url = (
-                current_app.config.get('FRONTEND_URL')
-                or request.headers.get('Origin')
-                or request.host_url
-            )
-            reset_url = f"{frontend_url.rstrip('/')}/reset-password?token={token}"
+        # Mail-Versand im Background-Thread, damit der Request nicht blockiert
+        def send_reset_mail(app, recipient, reset_link):
+            with app.app_context():
+                try:
+                    from flask_mail import Message
+                    from app import mail
+                    msg = Message(
+                        'Passwort zurücksetzen — Network BBS Europe',
+                        recipients=[recipient],
+                    )
+                    msg.body = f"Klicken Sie auf den folgenden Link, um Ihr Passwort zurückzusetzen:\n\n{reset_link}\n\nDer Link ist 1 Stunde gültig."
 
-            msg = Message(
-                'Passwort zurücksetzen — Network BBS Europe',
-                recipients=[user.email],
-            )
-            msg.body = f"Klicken Sie auf den folgenden Link, um Ihr Passwort zurückzusetzen:\n\n{reset_url}\n\nDer Link ist 1 Stunde gültig."
+                    logger.info('Sende Reset-Mail an %s über %s:%s (User: %s)',
+                                recipient,
+                                app.config.get('MAIL_SERVER'),
+                                app.config.get('MAIL_PORT'),
+                                app.config.get('MAIL_USERNAME'))
+                    mail.send(msg)
+                    logger.info('Reset-Mail erfolgreich gesendet an %s', recipient)
+                except Exception as e:
+                    logger.error('Fehler beim Mail-Versand an %s: %s', recipient, e, exc_info=True)
 
-            logger.info('Sende Reset-Mail an %s über %s:%s (User: %s)',
-                        user.email,
-                        current_app.config.get('MAIL_SERVER'),
-                        current_app.config.get('MAIL_PORT'),
-                        current_app.config.get('MAIL_USERNAME'))
-            mail.send(msg)
-            logger.info('Reset-Mail erfolgreich gesendet an %s', user.email)
-        except Exception as e:
-            logger.error('Fehler beim Mail-Versand an %s: %s', email, e, exc_info=True)
+        thread = threading.Thread(
+            target=send_reset_mail,
+            args=(current_app._get_current_object(), user.email, reset_url)
+        )
+        thread.start()
 
     # Always return success to prevent email enumeration
     return jsonify({'message': 'Falls die E-Mail-Adresse registriert ist, wurde eine E-Mail gesendet.'})
