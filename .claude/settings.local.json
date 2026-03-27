@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /d/Code/bbsEurope -name *.sql -o -name alembic* -o -name migrations)",
+      "Bash(python -c \":*)",
+      "Bash(.venv/Scripts/python -c \":*)",
+      "Bash(../.venv/Scripts/python -c \":*)",
+      "Bash(../.venv/Scripts/python app.py)",
+      "Bash(npm run:*)"
+    ]
+  }
+}

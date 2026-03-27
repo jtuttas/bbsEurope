@@ -1,8 +1,11 @@
+import logging
 import os
 from flask import Flask
 from flask_cors import CORS
 from flask_login import LoginManager
 from flask_mail import Mail
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(name)s %(levelname)s: %(message)s')
 
 from config import Config
 from models import db, User
